@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types = 1);
+declare (strict_types=1);
 
 namespace App\Model;
 
@@ -52,6 +52,8 @@ class CommentModel extends Model
         'be_commenter_id'   => 'integer',
         'be_commenter_type' => 'integer',
         'is_top'            => 'boolean',
+        'create_time'       => 'integer',
+        'update_time'       => 'integer',
     ];
 
     public $timestamps = false;

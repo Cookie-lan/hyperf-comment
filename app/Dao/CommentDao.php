@@ -26,4 +26,9 @@ class CommentDao
     {
         return $this->commentModel::query()->where($where)->get($field)->toArray();
     }
+
+    public function create(array $data): bool
+    {
+        return (bool) $this->commentModel::insert($data);
+    }
 }

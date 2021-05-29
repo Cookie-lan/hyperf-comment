@@ -30,6 +30,7 @@
         "hyperf/rpc-client": "~2.1.0",
         "hyperf/rpc-server": "~2.1.0",
         "hyperf/service-governance": "~2.1.0",
+        "hyperf/snowflake": "^2.1",
         "hyperf/translation": "^2.1",
         "hyperf/validation": "^2.1"
     },

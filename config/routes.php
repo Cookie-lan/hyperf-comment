@@ -15,8 +15,8 @@ use Hyperf\HttpServer\Router\Router;
 
 Router::addGroup('/v1', function () {
     // 前台路由
-    Router::addGroup('/api', function () {
-
+    Router::addGroup('/api/', function () {
+        Router::addRoute('POST', 'create', [App\Controller\Api\CommentController::class, 'create']);
     });
 
     // 后台路由

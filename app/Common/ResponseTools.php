@@ -4,6 +4,7 @@
 namespace App\Common;
 
 
+use App\Error\ErrorFactory;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
@@ -35,15 +36,14 @@ trait ResponseTools
     /**
      * 失败响应数据
      *
-     * @param int $code
-     * @param string $message
+     * @param ErrorFactory $errorFactory
      * @return PsrResponseInterface
      */
-    public function error(int $code, string $message): PsrResponseInterface
+    public function error(ErrorFactory $errorFactory): PsrResponseInterface
     {
         $result = [
-            'code'    => $code,
-            'message' => $message,
+            'code'    => $errorFactory->getCode(),
+            'message' => trans('errors.' . $errorFactory->getMessage()),
             'data'    => [],
         ];
         return $this->response->json($result);
