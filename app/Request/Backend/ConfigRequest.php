@@ -6,7 +6,7 @@ namespace App\Request\Backend;
 
 use App\Kernel\Request\AbstractRequest;
 
-class CommentRequest extends AbstractRequest
+class ConfigRequest extends AbstractRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,5 +14,17 @@ class CommentRequest extends AbstractRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    public function createRules()
+    {
+        return [
+            'config' => 'required',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [];
     }
 }

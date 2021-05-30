@@ -1,5 +1,7 @@
 <?php
 
+use Hyperf\Utils\Arr;
+
 if (! function_exists('filter_xss')) {
     /**
      * 过滤xss
@@ -25,7 +27,7 @@ if (! function_exists('filter_xss')) {
             // @ @ search for the hex values
             $val = preg_replace('/(&#[xX]0{0,8}' . dechex(ord($search[$i])) . ';?)/i', $search[$i], $val); // with a ;
             // @ @ 0{0,7} matches '0' zero to seven times
-            $val = preg_replace('/(&#0{0,8}' . ord($search[$i]) . ';?)/', $search[$i], $val); // with a ;
+            $val = preg_replace('/(&#0{0,8}' . ord($search[$i]) . ';?)/', $search[$i], $val);              // with a ;
         }
         // now the only remaining whitespace attacks are \t, \n, and \r 'style',
         $ra1 = [
@@ -147,7 +149,7 @@ if (! function_exists('filter_xss')) {
                 }
                 $pattern .= '/i';
                 $replacement = substr($ra[$i], 0, 2) . '<x>' . substr($ra[$i], 2); // add in <> to nerf the tag
-                $val = preg_replace($pattern, $replacement, $val); // filter out the hex tags
+                $val = preg_replace($pattern, $replacement, $val);                 // filter out the hex tags
                 if ($val_before == $val) {
                     // no replacements were made, so exit the loop
                     $found = false;
@@ -157,3 +159,41 @@ if (! function_exists('filter_xss')) {
         return $val;
     }
 }
+
+if (! function_exists('is_json')) {
+    /**
+     * 判断是否为json字符串
+     *
+     * @param string $val
+     * @return bool
+     */
+    function is_json(string $val)
+    {
+        json_decode($val);
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+}
+
+if (! function_exists('get_ip')) {
+    /**
+     * 获取真实ip
+     *
+     * @param array $serverParams
+     * @return mixed|string
+     */
+    function get_ip(array $serverParams)
+    {
+        if (Arr::exists($serverParams, 'http_client_ip')) {
+            return $serverParams['http_client_ip'];
+        } elseif (Arr::exists($serverParams, 'http_x_real_ip')) {
+            return $serverParams['http_x_real_ip'];
+        } elseif (Arr::exists($serverParams, 'http_x_forwarded_for')) {
+            // 部分CDN会获取多层代理IP，所以转成数组取第一个值
+            $proxyIp = explode(',', $serverParams['http_x_forwarded_for']);
+            return $proxyIp[0];
+        } else {
+            return $serverParams['remote_addr'] ?? '127.0.0.1';
+        }
+    }
+}
+

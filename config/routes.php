@@ -22,5 +22,6 @@ Router::addGroup('/v1', function () {
     // 后台路由
     Router::addGroup('/', function () {
         Router::addRoute('GET', 'list', [App\Controller\Backend\CommentController::class, 'list']);
+        Router::addRoute('POST', 'config', [App\Controller\Backend\ConfigController::class, 'create']);
     });
 });
