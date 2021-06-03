@@ -48,10 +48,11 @@ class CommentController
         Arr::set($params, 'founder_avatar', Arr::get($memberData, 'member_avatar'));
 
         $result = $this->commentService->create($params);
-        if ($result) {
-            return $this->success();
+        if (! $result) {
+            // todo 评论创建成功后需要触发的事件
+            return $this->error(new CommentError('ERR_CREATE_FAILED'));
         }
-        return $this->error(new CommentError('ERR_CREATE_FAILED'));
+        return $this->success();
     }
 
 
