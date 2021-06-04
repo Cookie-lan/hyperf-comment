@@ -32,7 +32,7 @@ class ConfigController
     {
         $params = $request->all();
         // 用户验证
-        if (! $this->memberService->checkByAccessToken(Arr::get($params, 'access_token'))) {
+        if (! $this->memberService->checkByAccessToken($params['access_token'])) {
             return $this->error(new ConfigError('ERR_NO_AUTH'));
         }
 

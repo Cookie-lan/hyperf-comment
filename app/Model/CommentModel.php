@@ -31,8 +31,8 @@ class CommentModel extends Model
      */
     protected $casts = [
         'id'                => 'integer',
-        'uni_id'            => 'real',
-        'parent_id'         => 'real',
+        'uni_id'            => 'integer',
+        'parent_id'         => 'integer',
         'source_type'       => 'integer',
         'content_type'      => 'integer',
         'founder_id'        => 'integer',
@@ -47,8 +47,8 @@ class CommentModel extends Model
         'n_like_num'        => 'integer',
         'target_id'         => 'integer',
         'device_type'       => 'integer',
-        'main_comment_id'   => 'real',
-        'dialogue_id'       => 'real',
+        'main_comment_id'   => 'integer',
+        'dialogue_id'       => 'integer',
         'be_commenter_id'   => 'integer',
         'be_commenter_type' => 'integer',
         'is_top'            => 'boolean',

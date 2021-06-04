@@ -1,9 +1,11 @@
 <?php
 
-declare (strict_types=1);
+declare (strict_types = 1);
+
 namespace App\Model;
 
 use Hyperf\DbConnection\Model\Model;
+
 /**
  */
 class ConfigModel extends Model
@@ -31,6 +33,9 @@ class ConfigModel extends Model
         'id'          => 'integer',
         'customer_id' => 'integer',
         'source_type' => 'integer',
+        'config'      => 'json',
+        'create_time' => 'integer',
+        'update_time' => 'integer',
     ];
 
     public $timestamps = false;

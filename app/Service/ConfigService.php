@@ -36,7 +36,7 @@ class ConfigService
             'max_pic_num'               => Arr::get($data, 'max_pic_num', 0),
             'is_open_virtual_like_rule' => Arr::get($data, 'is_open_virtual_like_rule', 0),
             'virtual_like_rule'         => Arr::get($data, 'virtual_like_rule') ? Json::decode(Arr::get($data,
-                'virtual_like_rule')) : '',
+                'virtual_like_rule')) : [],
         ];
 
         $customerId = Arr::get($data, 'customer_id');
@@ -55,17 +55,39 @@ class ConfigService
             ];
 
             return $this->configDao->update($where, $update);
-        } else {
-            // 不存在即创建
-            $insert = [
-                'customer_id' => $customerId,
-                'source_type' => $sourceType,
-                'config'      => Json::encode($config),
-                'create_time' => $requestTime,
-                'update_time' => $requestTime,
-            ];
-
-            return $this->configDao->create($insert);
         }
+
+        // 不存在即创建
+        $insert = [
+            'customer_id' => $customerId,
+            'source_type' => $sourceType,
+            'config'      => Json::encode($config),
+            'create_time' => $requestTime,
+            'update_time' => $requestTime,
+        ];
+
+        return $this->configDao->create($insert);
+    }
+
+    /**
+     * 获取配置
+     *
+     * @param array $where
+     * @param array $field
+     * @return array
+     */
+    public function get(array $where, array $field = ['*']): array
+    {
+        $config = $this->configDao->get($where, $field);
+        if (! $config) {
+            return [];
+        }
+
+        // 虚拟点赞量规则
+        if (! Arr::get($config, 'is_open_virtual_like_rule')) {
+            $config['virtual_like_rule'] = [];
+        }
+
+        return $config;
     }
 }
