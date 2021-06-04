@@ -11,7 +11,7 @@ declare(strict_types=1);
  */
 return [
     'http' => [
-        App\Middleware\FilterXssMiddleware::class,
+        App\Middleware\ParamsFilterMiddleware::class,
         Hyperf\Validation\Middleware\ValidationMiddleware::class
     ],
 ];

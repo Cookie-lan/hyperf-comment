@@ -23,7 +23,7 @@ class CommentRequest extends AbstractRequest
             'content'      => 'required|string',
             'content_type' => 'integer|min:1|max:4',
             'source_type'  => 'required|integer|min:1|max:3',
-            'customer_id'  => 'required|min:1',
+            'customer_id'  => 'required|integer|min:1',
             'address'      => 'string|alpha',
             'lng'          => 'regex:/^\d{1,3}(\.\d{7})?$/',
             'lat'          => 'regex:/^\d{1,3}(\.\d{7})?$/',

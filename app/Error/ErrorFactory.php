@@ -5,19 +5,29 @@ declare(strict_types = 1);
 namespace App\Error;
 
 
-class ErrorFactory implements ErrorInterface
+abstract class ErrorFactory implements ErrorInterface
 {
     /**
+     * 公共错误标识
+     *
      * @var array
      */
-    protected $identifies = [];
+    protected $identifies = [
+        'ERR_NO_MEMBER'     => [10001, 'No Member'],
+        'ERR_CREATE_FAILED' => [10002, 'Create Failed'],
+        'ERR_NO_AUTH'       => [10003, 'No Auth'],
+    ];
 
     /**
+     * 错误码
+     *
      * @var int
      */
     protected $code;
 
     /**
+     * 错误信息
+     *
      * @var string
      */
     protected $msg;
@@ -30,8 +40,9 @@ class ErrorFactory implements ErrorInterface
      */
     public function __construct(string $identify)
     {
+        $this->init();
         $this->code = $this->identifies[$identify][0] ?? 500;
-        $this->msg = $this->identifies[$identify][1] ?? 'undefined';
+        $this->msg = $this->identifies[$identify][1] ?? 'Undefined';
     }
 
     /**

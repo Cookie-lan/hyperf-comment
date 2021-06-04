@@ -1,12 +1,12 @@
 <?php
 
 
-namespace App\Error\Api;
+namespace App\Error\Backend;
 
 
 use App\Error\ErrorFactory;
 
-class CommentError extends ErrorFactory
+class ConfigError extends ErrorFactory
 {
 
     /**

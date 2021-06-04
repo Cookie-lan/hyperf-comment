@@ -12,7 +12,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class FilterXssMiddleware implements MiddlewareInterface
+class ParamsFilterMiddleware implements MiddlewareInterface
 {
     /**
      * @var ContainerInterface
@@ -35,11 +35,7 @@ class FilterXssMiddleware implements MiddlewareInterface
 
         if ($params) {
             // xss过滤
-            foreach ($params as $key => $value) {
-                if (is_string($value)) {
-                    $params[$key] = filter_xss($value);
-                }
-            }
+            $this->filterXss($params);
 
             // 过滤后的参数重新写入
             $request = Context::override(ServerRequestInterface::class, function () use ($request, $params) {
@@ -51,5 +47,19 @@ class FilterXssMiddleware implements MiddlewareInterface
         }
 
         return $handler->handle($request);
+    }
+
+    /**
+     * xss过滤
+     *
+     * @param array $params
+     */
+    protected function filterXss(array &$params)
+    {
+        foreach ($params as $key => $value) {
+            if (is_string($value)) {
+                $params[$key] = filter_xss($value);
+            }
+        }
     }
 }

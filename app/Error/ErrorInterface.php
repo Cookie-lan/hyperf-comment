@@ -8,6 +8,13 @@ namespace App\Error;
 interface ErrorInterface
 {
     /**
+     * 初始化自定义标识添加
+     *
+     * @return mixed
+     */
+    public function init();
+
+    /**
      * 获取错误码
      *
      * @return int

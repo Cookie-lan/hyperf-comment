@@ -12,6 +12,7 @@ use App\Service\MemberService;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Utils\Arr;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
+use Psr\SimpleCache\InvalidArgumentException;
 
 class CommentController
 {
@@ -34,6 +35,7 @@ class CommentController
      *
      * @param CommentRequest $request
      * @return PsrResponseInterface
+     * @throws InvalidArgumentException
      */
     public function create(CommentRequest $request): PsrResponseInterface
     {
@@ -41,11 +43,12 @@ class CommentController
         Arr::set($params, 'request_time', $request->getServerParams()['request_time']);
         Arr::set($params, 'request_ip', get_ip($request->getServerParams()));
 
-        $memberData = $this->memberService->getMemberByAccessToken(Arr::get($params, 'access_token'));
-        Arr::set($params, 'founder_id', Arr::get($memberData, 'member_id'));
-        Arr::set($params, 'founder_type', Arr::get($memberData, 'member_type'));
-        Arr::set($params, 'founder_name', Arr::get($memberData, 'member_name'));
-        Arr::set($params, 'founder_avatar', Arr::get($memberData, 'member_avatar'));
+        // 会员信息获取
+        $memberData = $this->memberService->getByAccessToken(Arr::get($params, 'access_token'));
+        if (! $memberData) {
+            return $this->error(new CommentError('ERR_NO_MEMBER'));
+        }
+        Arr::set($params, 'member_data', $memberData);
 
         $result = $this->commentService->create($params);
         if (! $result) {

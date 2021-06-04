@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Error\Api;
+namespace App\Error\Backend;
 
 
 use App\Error\ErrorFactory;
