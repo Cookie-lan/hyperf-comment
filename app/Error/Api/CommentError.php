@@ -4,18 +4,13 @@
 namespace App\Error\Api;
 
 
-use App\Error\ErrorFactory;
+use App\Kernel\Factory\ErrorFactory;
 
 class CommentError extends ErrorFactory
 {
-
     /**
-     * 初始化自定义标识添加
-     *
-     * @return mixed
+     * 自定义错误标识添加
      */
-    public function init()
-    {
-        // TODO: Implement init() method.
-    }
+    const ERR_NOT_SUPPORT_BUILDING = [20001, 'Not Support Building'];
+    const ERR_COMMENT_NOT_EXISTS   = [20002, 'Comment Not Exists'];
 }

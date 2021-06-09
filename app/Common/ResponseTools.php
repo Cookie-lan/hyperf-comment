@@ -36,14 +36,14 @@ trait ResponseTools
     /**
      * 失败响应数据
      *
-     * @param ErrorFactory $errorFactory
+     * @param array $errorInfo
      * @return PsrResponseInterface
      */
-    public function error(ErrorFactory $errorFactory): PsrResponseInterface
+    public function error(array $errorInfo): PsrResponseInterface
     {
         $result = [
-            'code'    => $errorFactory->getCode(),
-            'message' => trans('errors.' . $errorFactory->getMessage()),
+            'code'    => $errorInfo[0] ?? 500,
+            'message' => trans('errors.' . ($errorInfo[1] ?? 'Undefined')),
             'data'    => [],
         ];
         return $this->response->json($result);

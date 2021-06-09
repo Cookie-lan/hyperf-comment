@@ -48,23 +48,26 @@ class CommentController
     public function create(CommentRequest $request): PsrResponseInterface
     {
         $params = $request->all();
-        Arr::set($params, 'request_time', $request->getServerParams()['request_time']);
-        Arr::set($params, 'request_ip', get_ip($request->getServerParams()));
 
         // 会员信息获取
         $memberData = $this->memberService->getByAccessToken($params['access_token']);
         if (! $memberData) {
-            return $this->error(new CommentError('ERR_NO_MEMBER'));
+            return $this->error(CommentError::ERR_NO_MEMBER);
         }
         Arr::set($params, 'member_data', $memberData);
 
         // 配置获取
-        Arr::set($params, 'config', $this->getConfig((int) $params['customer_id'], (int) $params['source_type']));
+        $config = $this->getConfig((int) $params['customer_id'], (int) $params['source_type']);
+
+        // 配置规则验证
+        $this->commentService->createValidation($params, $config);
+
+        Arr::set($params, 'config', $config);
 
         $result = $this->commentService->create($params);
         if (! $result) {
             // todo 评论创建成功后需要触发的事件
-            return $this->error(new CommentError('ERR_CREATE_FAILED'));
+            return $this->error(CommentError::ERR_CREATE_FAILED);
         }
         return $this->success();
     }

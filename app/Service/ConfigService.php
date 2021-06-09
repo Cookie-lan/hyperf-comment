@@ -9,6 +9,7 @@ use App\Dao\ConfigDao;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Utils\Arr;
 use Hyperf\Utils\Codec\Json;
+use Hyperf\Utils\Context;
 
 class ConfigService
 {
@@ -17,6 +18,12 @@ class ConfigService
      * @var ConfigDao
      */
     protected $configDao;
+
+    /**
+     * @Inject()
+     * @var CommentService
+     */
+    protected $commentService;
 
     /**
      * 配置创建
@@ -45,10 +52,10 @@ class ConfigService
             'customer_id' => $customerId,
             'source_type' => $sourceType,
         ];
-        $requestTime = Arr::get($data, 'request_time');
+        $requestTime = Context::get('request_time');
 
         if ($this->configDao->exists($where)) {
-            // 创建即更新
+            // 存在即更新
             $update = [
                 'config'      => Json::encode($config),
                 'update_time' => $requestTime,
@@ -83,7 +90,7 @@ class ConfigService
             return [];
         }
 
-        // 虚拟点赞量规则
+        // 虚拟点赞量规则处理
         if (! Arr::get($config, 'is_open_virtual_like_rule')) {
             $config['virtual_like_rule'] = [];
         }

@@ -27,8 +27,25 @@ class CommentDao
         return $this->commentModel::query()->where($where)->get($field)->toArray();
     }
 
+    /**
+     * 评论创建
+     *
+     * @param array $data
+     * @return bool
+     */
     public function create(array $data): bool
     {
         return (bool) $this->commentModel::insert($data);
+    }
+
+    /**
+     * 判断评论是否存在
+     *
+     * @param array $where
+     * @return bool
+     */
+    public function exists(array $where): bool
+    {
+        return (bool) $this->commentModel::where($where)->exists();
     }
 }

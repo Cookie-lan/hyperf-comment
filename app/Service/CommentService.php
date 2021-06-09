@@ -6,9 +6,11 @@ namespace App\Service;
 
 
 use App\Dao\CommentDao;
+use App\Error\Api\CommentError;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Snowflake\IdGeneratorInterface;
 use Hyperf\Utils\Arr;
+use Hyperf\Utils\Context;
 
 class CommentService
 {
@@ -42,26 +44,26 @@ class CommentService
      */
     public function create(array $data): bool
     {
-        $customer_id = Arr::get($data, 'customer_id');
-        $source_type = Arr::get($data, 'source_type');
-        $request_time = Arr::get($data, 'request_time');
+        $customerId = Arr::get($data, 'customer_id');
+        $sourceType = Arr::get($data, 'source_type');
+        $requestTime = Context::get('request_time');
 
         // 插入数据整合
         $insert = [
             'uni_id'              => $this->idGenerator->generate(),
-            'parent_id'           => Arr::get($data, 'parent_id', 0),
+            'parent_id'           => Arr::get($data, 'comment_id', 0),
             'content'             => Arr::get($data, 'content'),
             'content_type'        => Arr::get($data, 'content_type', 1),
-            'source_type'         => $source_type,
+            'source_type'         => $sourceType,
             'founder_id'          => Arr::get($data, 'member_data.id'),
             'founder_type'        => Arr::get($data, 'member_data.type'),
             'founder_name'        => Arr::get($data, 'member_data.name'),
             'founder_avatar'      => Arr::get($data, 'member_data.avatar'),
-            'customer_id'         => $customer_id,
+            'customer_id'         => $customerId,
             'status'              => Arr::get($data, 'config.is_default_audit', 0),
-            'ip'                  => ip2long(Arr::get($data, 'request_ip')),
-            'create_time'         => $request_time,
-            'update_time'         => $request_time,
+            'ip'                  => ip2long(Context::get('request_ip')),
+            'create_time'         => $requestTime,
+            'update_time'         => $requestTime,
             'address'             => Arr::get($data, 'address', ''),
             'lng'                 => Arr::get($data, 'lng', 0.0000000),
             'lat'                 => Arr::get($data, 'lat', 0.0000000),
@@ -82,5 +84,38 @@ class CommentService
         ];
 
         return $this->commentDao->create($insert);
+    }
+
+    /**
+     * 根据条件判断评论是否存在
+     *
+     * @param array $where
+     * @return bool
+     */
+    public function exists(array $where): bool
+    {
+        return $this->commentDao->exists($where);
+    }
+
+    public function createValidation(array $params, array $config)
+    {
+        if ($parentId = Arr::get($params, 'comment_id')) {
+            // 盖楼验证
+            if (! Arr::get($config, 'is_open_building')) {
+                return CommentError::ERR_NOT_SUPPORT_BUILDING;
+            }
+
+            // 评论是否存在验证
+            if (! $this->commentDao->exists(['uni_id' => $parentId])) {
+                return CommentError::ERR_COMMENT_NOT_EXISTS;
+            }
+
+            // 内容长短验证
+            $minLength = Arr::get($config, 'min_length');
+            $maxLength = Arr::get($config, 'max_length');
+            if ($minLength && $minLength > mb_strlen($params['content'], 'UTF-8')) {
+                return 'ERR_';
+            }
+        }
     }
 }
