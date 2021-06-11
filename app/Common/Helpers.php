@@ -167,7 +167,7 @@ if (! function_exists('is_json')) {
      * @param string $val
      * @return bool
      */
-    function is_json(string $val)
+    function is_json(string $val): bool
     {
         json_decode($val);
         return json_last_error() === JSON_ERROR_NONE;
@@ -197,3 +197,24 @@ if (! function_exists('get_ip')) {
     }
 }
 
+if (! function_exists('build_page_info')) {
+    /**
+     * 构建分页返回数据
+     *
+     * @param int $page
+     * @param int $count
+     * @param int $total
+     * @return array
+     */
+    function build_page_info(int $page, int $count, int $total): array
+    {
+        $lastPage = ceil($total / $count);
+        return [
+            'per_page'     => $count,
+            'current_page' => $page,
+            'next_page'    => $page + 1 > $lastPage ? $lastPage : $page + 1,
+            'last_page'    => $lastPage,
+            'total'        => $total,
+        ];
+    }
+}

@@ -16,6 +16,11 @@ class CommentRequest extends AbstractRequest
         return true;
     }
 
+    /**
+     * 评论创建表单验证规则
+     *
+     * @return array
+     */
     public function createRules(): array
     {
         return [
@@ -34,6 +39,56 @@ class CommentRequest extends AbstractRequest
             'target_type_tag' => 'required|alpha',
             'parent_id'       => 'numeric|min:1',
             'device_token'    => 'alpha_num'
+        ];
+    }
+
+    /**
+     * 获取个人评论表单验证规则
+     *
+     * @return array
+     */
+    public function getMyCommentsRules(): array
+    {
+        return [
+            'access_token' => 'required|string|alpha_num',
+            'source_type'  => 'required|integer|min:1|max:3',
+            'customer_id'  => 'required|integer|min:1',
+            'page'         => 'integer|min:1',
+            'count'        => 'integer|min:1|max:200',
+        ];
+    }
+
+    /**
+     * 获取他人评论表单验证规则
+     *
+     * @return array
+     */
+    public function getOtherCommentsRules(): array
+    {
+        return [
+            'access_token' => 'required|string|alpha_num',
+            'source_type'  => 'required|integer|min:1|max:3',
+            'customer_id'  => 'required|integer|min:1',
+            'member_id'    => 'required|integer|min:1',
+            'page'         => 'integer|min:1',
+            'count'        => 'integer|min:1|max:200',
+        ];
+    }
+
+    /**
+     * 获取内容的评论列表表单验证规则
+     *
+     * @return array
+     */
+    public function listRules(): array
+    {
+        return [
+            'source_type' => 'required|integer|min:1|max:3',
+            'customer_id' => 'required|integer|min:1',
+            'page'        => 'integer|min:1',
+            'count'       => 'integer|min:1|max:200',
+            'id'          => 'required|integer|min:1',
+            'type_tag'    => 'required|string|alpha',
         ];
     }
 }

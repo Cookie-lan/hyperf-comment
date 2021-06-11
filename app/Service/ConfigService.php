@@ -34,20 +34,20 @@ class ConfigService
     public function createOrUpdate(array $data): bool
     {
         $config = [
-            'min_length'                => Arr::get($data, 'min_length', 0),
-            'max_length'                => Arr::get($data, 'max_length', 0),
-            'is_default_audit'          => Arr::get($data, 'is_default_audit', 0),
-            'is_open_member_delete'     => Arr::get($data, 'is_open_member_delete', 0),
-            'create_interval'           => Arr::get($data, 'create_interval', 0),
-            'is_open_building'          => Arr::get($data, 'is_open_building', 0),
-            'max_pic_num'               => Arr::get($data, 'max_pic_num', 0),
-            'is_open_virtual_like_rule' => Arr::get($data, 'is_open_virtual_like_rule', 0),
+            'min_length'                => (int) Arr::get($data, 'min_length', 0),
+            'max_length'                => (int) Arr::get($data, 'max_length', 0),
+            'is_default_audit'          => (int) Arr::get($data, 'is_default_audit', 0),
+            'is_open_member_delete'     => (int) Arr::get($data, 'is_open_member_delete', 0),
+            'create_interval'           => (int) Arr::get($data, 'create_interval', 0),
+            'is_open_building'          => (int) Arr::get($data, 'is_open_building', 0),
+            'max_pic_num'               => (int) Arr::get($data, 'max_pic_num', 0),
+            'is_open_virtual_like_rule' => (int) Arr::get($data, 'is_open_virtual_like_rule', 0),
             'virtual_like_rule'         => Arr::get($data, 'virtual_like_rule') ? Json::decode(Arr::get($data,
                 'virtual_like_rule')) : [],
         ];
 
-        $customerId = Arr::get($data, 'customer_id');
-        $sourceType = Arr::get($data, 'source_type');
+        $customerId = (int) Arr::get($data, 'customer_id');
+        $sourceType = (int) Arr::get($data, 'source_type');
         $where = [
             'customer_id' => $customerId,
             'source_type' => $sourceType,

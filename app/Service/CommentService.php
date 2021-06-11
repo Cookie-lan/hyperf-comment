@@ -29,10 +29,13 @@ class CommentService
     /**
      * 评论列表获取
      *
+     * @param array $data
      * @return array
      */
-    public function list(): array
+    public function getComments(array $data): array
     {
+
+
         return $this->commentDao->getComments([]);
     }
 
@@ -87,19 +90,15 @@ class CommentService
     }
 
     /**
-     * 根据条件判断评论是否存在
+     * 评论创建验证
      *
-     * @param array $where
-     * @return bool
+     * @param array $data
+     * @param array $config
+     * @return array
      */
-    public function exists(array $where): bool
+    public function createValidation(array $data, array $config): array
     {
-        return $this->commentDao->exists($where);
-    }
-
-    public function createValidation(array $params, array $config)
-    {
-        if ($parentId = Arr::get($params, 'comment_id')) {
+        if ($parentId = Arr::get($data, 'comment_id')) {
             // 盖楼验证
             if (! Arr::get($config, 'is_open_building')) {
                 return CommentError::ERR_NOT_SUPPORT_BUILDING;
@@ -109,13 +108,93 @@ class CommentService
             if (! $this->commentDao->exists(['uni_id' => $parentId])) {
                 return CommentError::ERR_COMMENT_NOT_EXISTS;
             }
+        }
 
-            // 内容长短验证
-            $minLength = Arr::get($config, 'min_length');
-            $maxLength = Arr::get($config, 'max_length');
-            if ($minLength && $minLength > mb_strlen($params['content'], 'UTF-8')) {
-                return 'ERR_';
+        // 内容长短验证
+        $minLength = Arr::get($config, 'min_length');
+        $maxLength = Arr::get($config, 'max_length');
+        $contentLength = mb_strlen($data['content'], 'UTF-8');
+        if ($minLength && $minLength > $contentLength) {
+            return CommentError::ERR_CONTENT_TOO_SHORT;
+        }
+
+        if ($maxLength && $maxLength < $contentLength) {
+            return CommentError::ERR_CONTENT_TOO_LONG;
+        }
+
+        // 灌水验证
+        $createInterval = Arr::get($config, 'create_interval');
+        if ($createInterval) {
+            $where = [
+                'customer_id'  => (int) Arr::get($data, 'customer_id'),
+                'source_type'  => (int) Arr::get($data, 'source_type'),
+                'founder_id'   => (int) Arr::get($data, 'member_data.id'),
+                'founder_type' => (int) Arr::get($data, 'member_data.type'),
+            ];
+            $lastComment = $this->commentDao->getLatestComment($where, ['create_time']);
+            if ($lastComment && Context::get('request_time') < $lastComment['create_time'] + $createInterval) {
+                return CommentError::ERR_CREATE_TOO_FAST;
             }
         }
+
+        return [];
+    }
+
+    /**
+     * 获取个人评论列表
+     *
+     * @param array $data
+     * @return array
+     */
+    public function getMyComments(array $data): array
+    {
+        $where = [
+            'customer_id'  => (int) Arr::get($data, 'customer_id'),
+            'source_type'  => (int) Arr::get($data, 'source_type'),
+            'founder_id'   => (int) Arr::get($data, 'member_data.id'),
+            'founder_type' => (int) Arr::get($data, 'member_data.type'),
+        ];
+
+        $page = (int) Arr::get($data, 'page', 1);
+        $count = (int) Arr::get($data, 'count', 10);
+        $offset = ($page - 1) * $count;
+
+        $comments = $this->commentDao->getLimitComments($where, ['*'], $offset, $count);
+        $total = $this->commentDao->getCommentsCount($where);
+        $pageInfo = build_page_info($page, $count, $total);
+
+        return [
+            'comments'  => $comments,
+            'page_info' => $pageInfo,
+        ];
+    }
+
+    /**
+     * 获取他人的评论
+     *
+     * @param array $data
+     * @return array
+     */
+    public function getOtherComments(array $data): array
+    {
+        $where = [
+            'customer_id'  => (int) Arr::get($data, 'customer_id'),
+            'source_type'  => (int) Arr::get($data, 'source_type'),
+            'founder_id'   => (int) Arr::get($data, 'member_id'),
+            'founder_type' => (int) Arr::get($data, 'member_data.type'),
+        ];
+
+        $page = (int) Arr::get($data, 'page', 1);
+        $count = (int) Arr::get($data, 'count', 10);
+        $offset = ($page - 1) * $count;
+
+        $comments = $this->commentDao->getLimitComments($where, ['*'], $offset, $count);
+        $total = $this->commentDao->getCommentsCount($where);
+        $pageInfo = build_page_info($page, $count, $total);
+
+        return [
+            'comments'  => $comments,
+            'page_info' => $pageInfo,
+        ];
     }
 }

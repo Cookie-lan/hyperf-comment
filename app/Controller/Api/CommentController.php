@@ -14,7 +14,6 @@ use App\Service\MemberService;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Utils\Arr;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
-use Psr\SimpleCache\InvalidArgumentException;
 
 class CommentController
 {
@@ -43,24 +42,19 @@ class CommentController
      *
      * @param CommentRequest $request
      * @return PsrResponseInterface
-     * @throws InvalidArgumentException
      */
     public function create(CommentRequest $request): PsrResponseInterface
     {
         $params = $request->all();
 
-        // 会员信息获取
-        $memberData = $this->memberService->getByAccessToken($params['access_token']);
-        if (! $memberData) {
-            return $this->error(CommentError::ERR_NO_MEMBER);
-        }
-        Arr::set($params, 'member_data', $memberData);
-
         // 配置获取
         $config = $this->getConfig((int) $params['customer_id'], (int) $params['source_type']);
 
         // 配置规则验证
-        $this->commentService->createValidation($params, $config);
+        $validationError = $this->commentService->createValidation($params, $config);
+        if ($validationError) {
+            return $this->error($validationError);
+        }
 
         Arr::set($params, 'config', $config);
 
@@ -88,4 +82,44 @@ class CommentController
 
         return $config['config'];
     }
+
+    /**
+     * 获取自己的评论列表
+     *
+     * @param CommentRequest $request
+     * @return PsrResponseInterface
+     */
+    public function getOneComments(CommentRequest $request): PsrResponseInterface
+    {
+        $params = $request->all();
+
+        return $this->success($this->commentService->getMyComments($params));
+    }
+
+    /**
+     * 获取他人评论
+     *
+     * @param CommentRequest $request
+     * @return PsrResponseInterface
+     */
+    public function getOtherComments(CommentRequest $request): PsrResponseInterface
+    {
+        $params = $request->all();
+
+        return $this->success($this->commentService->getOtherComments($params));
+    }
+
+    /**
+     * 内容对应的评论列表
+     *
+     * @param CommentRequest $request
+     * @return PsrResponseInterface
+     */
+    public function getComments(CommentRequest $request): PsrResponseInterface
+    {
+        $params = $request->all();
+
+        return $this->success($this->commentService->getComments($params));
+    }
+
 }

@@ -51,7 +51,6 @@ class CommentModel extends Model
         'dialogue_id'       => 'integer',
         'be_commenter_id'   => 'integer',
         'be_commenter_type' => 'integer',
-        'is_top'            => 'boolean',
         'create_time'       => 'integer',
         'update_time'       => 'integer',
     ];
